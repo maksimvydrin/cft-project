@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Панель управления</h1>
+    
+    <!-- Навигация по вкладкам -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tasks-tab', this)">Очередь задач</button>
+        <button class="tab-btn" onclick="switchTab('analysts-tab', this)">Аналитики на смене</button>
+    </div>
+
+    <!-- Вкладка 1: Задачи -->
+    <div id="tasks-tab" class="tab-content active">
+        <div class="card">
+            <h2>Создать задачу</h2>
+            <form action="/" method="post" class="form-group">
+                <input type="text" name="task_type" placeholder="Тип (напр. Auth)" required>
+                <input type="text" name="description" placeholder="Краткое описание" style="flex-grow: 1;">
+                <select name="priority">
+                    <option value="low">Низкий приоритет</option>
+                    <option value="medium" selected>Средний приоритет</option>
+                    <option value="high">Высокий приоритет</option>
+                </select>
+                <button type="submit">+ Добавить</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Очередь задач</h2>
+                <form action="/distribute" method="post">
+                    <button type="submit" style="background-color: #27ae60;">🔄 Распределить задачи</button>
+                </form>
+            </div>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                    <th>Приоритет</th>
+                    <th>Статус</th>
+                    <th>Исполнитель</th>
+                </tr>
+                {% for task in tasks %}
+                <tr>
+                    <td>#{{ task['id'] }}</td>
+                    <td><strong>{{ task['task_type'] }}</strong></td>
+                    <td>{{ task['description'] }}</td>
+                    <td>
+                        {% if task['priority'] == 'high' %}🔴 Высокий
+                        {% elif task['priority'] == 'medium' %}🟡 Средний
+                        {% else %}🟢 Низкий{% endif %}
+                    </td>
+                    <td><em>{{ task['status'] }}</em></td>
+                    <td>{{ task['analyst_name'] if task['analyst_name'] else '—' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #7f8c8d;">Задач пока нет.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Вкладка 2: Аналитики -->
+    <div id="analysts-tab" class="tab-content">
+        <div class="card">
+            <h2>Аналитики на смене</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Уровень</th>
+                    <th>Доступен</th>
+                    <th>Лимит задач</th>
+                </tr>
+                {% for analyst in analysts %}
+                <tr>
+                    <td>#{{ analyst['id'] }}</td>
+                    <td>{{ analyst['name'] }}</td>
+                    <td><span style="background: #e8f4fd; color: #2980b9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em;">{{ analyst['level'] }}</span></td>
+                    <td>{{ '🟢 Да' if analyst['is_available'] else '🔴 Нет' }}</td>
+                    <td>{{ analyst['max_open_tasks'] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Скрипт переключения вкладок -->
+    <script>
+        function switchTab(tabId, btnElement) {
+            // Скрываем все вкладки и убираем активность со всех кнопок
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Показываем нужную вкладку и делаем кнопку активной
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{
+  "analysts": [
+    { "name": "Алексей (L1)", "level": "L1", "is_available": true, "max_open_tasks": 4 },
+    { "name": "Мария (L1)", "level": "L1", "is_available": true, "max_open_tasks": 3 },
+    { "name": "Иван (L1)", "level": "L1", "is_available": false, "max_open_tasks": 3 },
+    { "name": "Елена (L2)", "level": "L2", "is_available": true, "max_open_tasks": 2 },
+    { "name": "Дмитрий (L2)", "level": "L2", "is_available": true, "max_open_tasks": 2 },
+    { "name": "Сергей (L3 - Эксперт)", "level": "L3", "is_available": true, "max_open_tasks": 1 }
+  ],
+  "tasks": [
+    { "task_type": "Auth", "description": "Подозрительная попытка входа", "priority": "high" },
+    { "task_type": "Auth", "description": "Сброс пароля пользователя", "priority": "low" },
+    { "task_type": "Network", "description": "Потеря связи с филиалом", "priority": "high" },
+    { "task_type": "Network", "description": "Медленная загрузка по VPN", "priority": "medium" },
+    { "task_type": "DB", "description": "Зависшая транзакция в биллинге", "priority": "medium" },
+    { "task_type": "Hardware", "description": "Замена диска на сервере БД", "priority": "high" },
+    { "task_type": "Auth", "description": "Не приходит СМС для 2FA", "priority": "medium" },
+    { "task_type": "DB", "description": "Оптимизация медленного запроса", "priority": "low" },
+    { "task_type": "Hardware", "description": "Ошибка питания в стойке", "priority": "high" },
+    { "task_type": "Network", "description": "Отвалился внутренний DNS", "priority": "high" },
+    { "task_type": "Auth", "description": "Массовая блокировка аккаунтов", "priority": "high" },
+    { "task_type": "DB", "description": "Резервное копирование зависло", "priority": "medium" },
+    { "task_type": "Hardware", "description": "Перегрев коммутатора", "priority": "medium" },
+    { "task_type": "Network", "description": "Настройка новых VLAN", "priority": "low" },
+    { "task_type": "Auth", "description": "Ошибка сертификата SSL", "priority": "medium" },
+    { "task_type": "DB", "description": "Нехватка места на диске СУБД", "priority": "high" },
+    { "task_type": "Network", "description": "Жалобы на пинг из офиса", "priority": "low" },
+    { "task_type": "Hardware", "description": "Подключение нового принтера", "priority": "low" },
+    { "task_type": "Auth", "description": "Удаление уволенного сотрудника", "priority": "medium" },
+    { "task_type": "DB", "description": "Рассинхрон репликации", "priority": "high" }
+  ]
+}
