@@ -21,7 +21,7 @@ def create_app():
             return redirect(url_for('home'))
 
         analysts = conn.execute('SELECT * FROM analysts').fetchall()
-        # Джоиним таблицу аналитиков, чтобы получить их имена
+
         tasks = conn.execute('''
             SELECT tasks.*, analysts.name as analyst_name 
             FROM tasks 
@@ -30,14 +30,14 @@ def create_app():
         return render_template('index.html', analysts=analysts, tasks=tasks)
 
 # Маршрут для ручного запуска распределения
-    # 1. Запуск распределения
+    # Запуск распределения
     @app.route('/distribute', methods=['POST'])
     def distribute():
         from app.services.distribution_service import distribute_tasks
         distribute_tasks()
         return redirect(url_for('home'))
 
-    # 2. Завершение задачи
+    # Завершение задачи
     @app.route('/complete/<int:task_id>', methods=['POST'])
     def complete_task(task_id):
         from app.db import get_db
@@ -46,7 +46,7 @@ def create_app():
         conn.commit()
         return redirect(url_for('home'))
 
-    # 3. Эскалация задачи
+    # Эскалация задачи
     @app.route('/escalate/<int:task_id>', methods=['POST'])
     def escalate_task(task_id):
         from app.db import get_db

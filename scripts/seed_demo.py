@@ -9,7 +9,7 @@ def seed_data():
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    # Убедимся, что папка instance существует, чтобы не было ошибки при создании базы
+    # Убедимся что папка instance существует
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
     conn = sqlite3.connect(db_path)
@@ -38,14 +38,14 @@ def seed_data():
         )
     ''')
 
-    # 2. Записываем аналитиков
+    # Записываем аналитиков
     for analyst in data.get('analysts', []):
         cursor.execute(
             "INSERT INTO analysts (name, level, is_available, max_open_tasks) VALUES (?, ?, ?, ?)",
             (analyst['name'], analyst['level'], analyst['is_available'], analyst['max_open_tasks'])
         )
 
-    # 3. Записываем задачи
+    #Записываем задачи
     for task in data.get('tasks', []):
         cursor.execute(
             "INSERT INTO tasks (task_type, description, priority) VALUES (?, ?, ?)",
@@ -54,7 +54,7 @@ def seed_data():
 
     conn.commit()
     conn.close()
-    print("Таблицы созданы, данные успешно загружены в базу!")
+
 
 if __name__ == '__main__':
     seed_data()

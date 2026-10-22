@@ -3,13 +3,13 @@
 {% block content %}
     <h1>Панель управления</h1>
     
-    <!-- Навигация по вкладкам -->
+
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tasks-tab', this)">Очередь задач</button>
         <button class="tab-btn" onclick="switchTab('analysts-tab', this)">Аналитики на смене</button>
     </div>
 
-    <!-- Вкладка 1: Задачи -->
+
     <div id="tasks-tab" class="tab-content active">
         <div class="card">
             <h2>Создать задачу</h2>
@@ -32,7 +32,7 @@
                     <button type="submit" style="background-color: #27ae60;">🔄 Распределить задачи</button>
                 </form>
             </div>
-            <!-- Добавили id="tasks-table" и сортировку по клику (onclick) -->
+
             <table id="tasks-table">
                 <tr>
                     <th onclick="sortTasksTable(0)" style="cursor: pointer;" title="Сортировать по ID">ID ↕️</th>
@@ -104,7 +104,7 @@
         </div>
     </div>
 
-    <!-- Скрипты (Переключение вкладок + Сортировка) -->
+
     <script>
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -120,10 +120,10 @@
             const table = document.getElementById("tasks-table");
             const rows = Array.from(table.rows).slice(1); // Берем все строки, кроме заголовка
             
-            // Если таблица пустая (только надпись "Задач пока нет"), не сортируем
+            // Если таблица пустая не сортируем
             if (rows.length === 1 && rows[0].cells.length === 1) return;
 
-            // Определяем направление сортировки (по возрастанию или убыванию)
+            // Определяем направление сортировки 
             if (currentSortColumn === columnIndex) {
                 currentSortAsc = !currentSortAsc;
             } else {
@@ -135,7 +135,7 @@
                 let cellA = rowA.cells[columnIndex].innerText.trim();
                 let cellB = rowB.cells[columnIndex].innerText.trim();
 
-                // Специальная логика для ID (убираем '#' и сортируем как числа)
+                // логика для ID 
                 if (columnIndex === 0) {
                     let numA = parseInt(cellA.replace('#', ''));
                     let numB = parseInt(cellB.replace('#', ''));
