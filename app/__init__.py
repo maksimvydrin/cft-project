@@ -30,13 +30,34 @@ def create_app():
         return render_template('index.html', analysts=analysts, tasks=tasks)
 
 # Маршрут для ручного запуска распределения
+    # 1. Запуск распределения
     @app.route('/distribute', methods=['POST'])
     def distribute():
-        # Импортируем нашу новую функцию
         from app.services.distribution_service import distribute_tasks
         distribute_tasks()
         return redirect(url_for('home'))
-    # заглушки настроек
+
+    # 2. Завершение задачи
+    @app.route('/complete/<int:task_id>', methods=['POST'])
+    def complete_task(task_id):
+        from app.db import get_db
+        conn = get_db()
+        conn.execute('UPDATE tasks SET status = "Завершена" WHERE id = ?', (task_id,))
+        conn.commit()
+        return redirect(url_for('home'))
+
+    # 3. Эскалация задачи
+    @app.route('/escalate/<int:task_id>', methods=['POST'])
+    def escalate_task(task_id):
+        from app.db import get_db
+        conn = get_db()
+        conn.execute('''
+            UPDATE tasks 
+            SET status = "Ожидает", analyst_id = NULL, priority = "high" 
+            WHERE id = ?
+        ''', (task_id,))
+        conn.commit()
+        return redirect(url_for('home'))
     @app.route('/settings')
     def settings():
         return render_template('settings.html')
