@@ -19,7 +19,7 @@ def distribute_tasks():
     # 2. Получаем всех доступных аналитиков
     analysts = conn.execute('SELECT * FROM analysts WHERE is_available = 1').fetchall()
 
-    # 3. Считаем, сколько задач сейчас "В работе" у каждого аналитика
+    # 3. Считаем текущую загрузку каждого аналитика
     current_load = {}
     for analyst in analysts:
         count = conn.execute(
@@ -28,23 +28,34 @@ def distribute_tasks():
         ).fetchone()[0]
         current_load[analyst['id']] = count
 
-    # 4. Само распределение
+    # 4. ПРАВИЛА МАРШРУТИЗАЦИИ (Smart Routing)
+    # Определяем, аналитики каких грейдов могут брать задачи разных приоритетов
+    routing_rules = {
+        'low': ['L1', 'L2', 'L3'],  # Низкий приоритет могут брать все (L1 — основные чернорабочие)
+        'medium': ['L2', 'L3'],     # Средний приоритет доверяем только мидлам и сеньорам
+        'high': ['L3']              # Высокий приоритет (инциденты) улетают строго экспертам
+    }
+
+    # 5. Умное распределение
     for task in pending_tasks:
+        task_priority = task['priority']
+        # Получаем список разрешенных грейдов для этой задачи
+        allowed_levels = routing_rules.get(task_priority, ['L3']) 
+
         for analyst in analysts:
             a_id = analyst['id']
+            a_level = analyst['level']
             
-            # Временно назначаем любую задачу без учета уровня L1/L2 (добавим позже).
-            # Главное условие: лимит задач аналитика не должен быть превышен
-            if current_load[a_id] < analyst['max_open_tasks']:
+            # Проверяем ДВА условия: не превышен лимит И грейд аналитика подходит для задачи
+            if current_load[a_id] < analyst['max_open_tasks'] and a_level in allowed_levels:
                 
-                # Назначаем задачу на аналитика
+                # Назначаем задачу
                 conn.execute(
                     'UPDATE tasks SET status = ?, analyst_id = ? WHERE id = ?',
                     ('В работе', a_id, task['id'])
                 )
                 
-                # Увеличиваем счетчик его задач
                 current_load[a_id] += 1
-                break # Задача распределена, переходим к следующей
+                break # Задача распределена, берем следующую из очереди
 
     conn.commit()
