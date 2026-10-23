@@ -1,9 +1,59 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Настройки системы</h1>
-    
     <div class="card">
-        <h2>Правила распределения</h2>
+        <h2>Настройки системы</h2>
+        <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">
+            Панель администратора: управление источниками данных и системное логирование.
+        </p>
+
+        <!-- Секция выбора JSON -->
+        <div style="margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px solid var(--cft-border);">
+            <h3 style="color: var(--cft-blue); font-size: 1.05rem; margin-bottom: 15px;">Источник данных (Смены аналитиков)</h3>
+            <form action="/settings/load_json" method="post" class="form-group" style="align-items: center;">
+                <select name="json_file" style="width: 300px; padding: 10px;">
+                    {% for j_file in json_files %}
+                    <option value="{{ j_file }}">{{ j_file }}</option>
+                    {% else %}
+                    <!-- Заглушки, если реальных файлов пока нет -->
+                    <option value="morning_shift.json">morning_shift.json</option>
+                    <option value="night_shift.json">night_shift.json</option>
+                    <option value="stress_test.json">stress_test.json</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-warning">🔄 Инициализировать базу</button>
+            </form>
+            <p style="font-size: 0.8rem; color: #888; margin-top: 5px; margin-bottom: 0;">* Выбор нового файла сотрет текущие данные аналитиков и загрузит новые.</p>
         </div>
+
+        <!-- Секция Логов -->
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: var(--cft-blue); font-size: 1.05rem; margin: 0;">Журнал событий (Логи)</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <!-- Кнопка открытия в новой вкладке -->
+                    <a href="/settings/view_logs" target="_blank" style="background-color: #3498db; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">📄 Открыть в новой вкладке</a>
+                    
+                    <!-- Кнопка скачивания -->
+                    <a href="/settings/download_logs" style="background-color: #27ae60; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">⬇️ Скачать .log</a>
+                    
+                    <!-- Кнопка очистки -->
+                    <form action="/settings/clear_logs" method="post" style="margin: 0;">
+                        <button type="submit" style="background-color: #6c757d; padding: 8px 16px; font-size: 0.85rem;">Очистить</button>
+                    </form>
+                </div>
+            </div>
+            <!-- Окно логов в стиле терминала -->
+            <textarea readonly style="width: 100%; height: 300px; background-color: #1E1E1E; color: #A9B7C6; font-family: 'Courier New', monospace; padding: 15px; border-radius: 6px; border: none; resize: vertical; box-sizing: border-box; font-size: 0.85rem; line-height: 1.4;">{{ log_content if log_content else 'Журнал событий пуст или файл system.log еще не создан...' }}</textarea>
+        </div>
+    </div>
+
+    <!-- Опасная зона -->
+    <div class="card" style="border-top: 3px solid #e74c3c;">
+        <h2 style="color: #e74c3c; margin-bottom: 10px;">Опасная зона</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">Сброс всех существующих задач в очереди. Действие необратимо.</p>
+        <form action="/settings/reset" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить ВСЕ задачи?');">
+            <button type="submit" style="background-color: #e74c3c;">🗑 Очистить очередь задач</button>
+        </form>
+    </div>
 {% endblock %}

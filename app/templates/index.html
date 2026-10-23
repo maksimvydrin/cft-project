@@ -131,32 +131,42 @@
     <!-- Вкладка 2: Аналитики -->
     <div id="analysts-tab" class="tab-content">
         <div class="card">
-            <h2>Аналитики на смене</h2>
+            <h2>Управление сменами аналитиков</h2>
             <table>
                 <thead>
-                    <tr>
+                    <tr class="header-row">
                         <th>ID</th>
                         <th>Имя</th>
                         <th>Уровень</th>
-                        <th>Доступен</th>
+                        <th>На смене (Доступен)</th>
                         <th>Лимит задач</th>
+                        <th>Действия</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for analyst in analysts %}
                     <tr>
-                        <td>#{{ analyst['id'] }}</td>
-                        <td>{{ analyst['name'] }}</td>
-                        <td><span style="background: #e8f4fd; color: var(--cft-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">{{ analyst['level'] }}</span></td>
-                        <td>{{ '🟢 Да' if analyst['is_available'] else '🔴 Нет' }}</td>
-                        <td>{{ analyst['max_open_tasks'] }}</td>
+                        <form action="/update_analyst/{{ analyst['id'] }}" method="post" style="margin: 0;">
+                            <td>#{{ analyst['id'] }}</td>
+                            <td><strong>{{ analyst['name'] }}</strong></td>
+                            <td><span style="background: #e8f4fd; color: var(--cft-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">{{ analyst['level'] }}</span></td>
+                            <td>
+                                <input type="checkbox" name="is_available" style="transform: scale(1.3); cursor: pointer;" {% if analyst['is_available'] %}checked{% endif %}>
+                            </td>
+                            <td>
+                                <input type="number" name="max_open_tasks" value="{{ analyst['max_open_tasks'] }}" min="1" max="10" style="width: 70px; padding: 6px;">
+                            </td>
+                            <td>
+                                <button type="submit" class="btn-success" style="padding: 6px 12px; font-size: 0.8rem;">💾 Сохранить</button>
+                            </td>
+                        </form>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-
+    
     <script>
         // --- Переключение вкладок ---
         function switchTab(tabId, btnElement) {
