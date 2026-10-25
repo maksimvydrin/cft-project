@@ -1,0 +1,22 @@
+{
+    "analysts": [
+        {"name": "Анна (L1)", "level": "L1", "is_available": 1, "max_open_tasks": 5},
+        {"name": "Борис (L1)", "level": "L1", "is_available": 1, "max_open_tasks": 5},
+        {"name": "Денис (L1)", "level": "L1", "is_available": 1, "max_open_tasks": 5},
+        {"name": "Галина (L2)", "level": "L2", "is_available": 1, "max_open_tasks": 6},
+        {"name": "Кирилл (L2)", "level": "L2", "is_available": 1, "max_open_tasks": 6},
+        {"name": "Максим (L3 - Архитектор)", "level": "L3", "is_available": 1, "max_open_tasks": 8},
+        {"name": "Роман (L3 - Безопасность)", "level": "L3", "is_available": 1, "max_open_tasks": 8}
+    ],
+    "tasks": [
+        {"task_type": "DDoS", "description": "Массированная атака на внешний шлюз", "priority": "high", "status": "Ожидает"},
+        {"task_type": "Database", "description": "Отказ репликации основной базы данных", "priority": "high", "status": "Ожидает"},
+        {"task_type": "Billing", "description": "Массовый возврат транзакций по картам", "priority": "high", "status": "Ожидает"},
+        {"task_type": "Auth", "description": "Недоступен сервер авторизации SSO", "priority": "high", "status": "Ожидает"},
+        {"task_type": "API", "description": "Таймаут запросов к внешнему API банка", "priority": "medium", "status": "Ожидает"},
+        {"task_type": "Network", "description": "Потеря пакетов на магистральном канале", "priority": "medium", "status": "Ожидает"},
+        {"task_type": "Client", "description": "Жалоба VIP-клиента на задержку выписки", "priority": "medium", "status": "Ожидает"},
+        {"task_type": "Logs", "description": "Переполнение диска с системными логами", "priority": "low", "status": "Ожидает"},
+        {"task_type": "UI", "description": "Не прогружаются иконки в личном кабинете", "priority": "low", "status": "Ожидает"}
+    ]
+}

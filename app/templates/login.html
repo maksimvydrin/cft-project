@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 420px; margin: 60px auto;">
+    <div class="card" style="text-align: center; padding: 35px 25px;">
+        <h2 style="margin-bottom: 10px; font-size: 1.3rem;">Вход в систему</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 25px;">
+            Выберите учетную запись для демонстрации ролевой модели:
+        </p>
+        <form action="/login" method="post" style="display: flex; flex-direction: column; gap: 15px;">
+            <select name="role_select" style="padding: 12px; font-size: 0.95rem; cursor: pointer;" required>
+                <option value="admin">👑 Суперадмин (Полный доступ)</option>
+                <optgroup label="Обычные аналитики (Режим чтения)">
+                    {% for analyst in analysts %}
+                    <option value="analyst:{{ analyst['name'] }}">👨‍💻 {{ analyst['name'] }}</option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+            <button type="submit" style="padding: 12px; font-size: 1rem; margin-top: 5px;">Войти в Service Desk</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -177,9 +177,18 @@
             <div class="header-logo">
                 <h1>ЦФТ | Service Desk</h1>
             </div>
-            <div class="nav-links">
-                <a href="/">Главная</a>
-                <a href="/settings">Настройки</a>
+            <div class="nav-links" style="align-items: center;">
+                {% if session.get('role') %}
+                    <a href="/">Главная</a>
+                    {% if session.get('role') == 'admin' %}
+                        <a href="/settings">Настройки</a>
+                    {% endif %}
+                    <span style="color: var(--cft-border);">|</span>
+                    <span style="font-size: 0.85rem; color: #555; background: #F0F3F7; padding: 5px 10px; border-radius: 4px; font-weight: 500;">
+                        👤 {{ session.get('user_name') }}
+                    </span>
+                    <a href="/logout" style="color: #e74c3c; font-size: 0.85rem;">Выйти</a>
+                {% endif %}
             </div>
         </div>
         {% block content %}{% endblock %}

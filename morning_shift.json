@@ -1,0 +1,17 @@
+{
+    "analysts": [
+        {"name": "Алексей (L1)", "level": "L1", "is_available": 1, "max_open_tasks": 3},
+        {"name": "Мария (L1)", "level": "L1", "is_available": 1, "max_open_tasks": 3},
+        {"name": "Иван (L1)", "level": "L1", "is_available": 1, "max_open_tasks": 2},
+        {"name": "Елена (L2)", "level": "L2", "is_available": 1, "max_open_tasks": 4},
+        {"name": "Дмитрий (L2)", "level": "L2", "is_available": 0, "max_open_tasks": 4},
+        {"name": "Сергей (L3 - Эксперт)", "level": "L3", "is_available": 1, "max_open_tasks": 5}
+    ],
+    "tasks": [
+        {"task_type": "Auth", "description": "Сброс пароля корпоративной почты", "priority": "low", "status": "Ожидает"},
+        {"task_type": "Hardware", "description": "Не работает второй монитор в каб. 304", "priority": "low", "status": "Ожидает"},
+        {"task_type": "Network", "description": "Пропадает доступ к VPN у отдела продаж", "priority": "medium", "status": "Ожидает"},
+        {"task_type": "Billing", "description": "Ошибка проведения платежа в шлюзе ЦФТ", "priority": "high", "status": "Ожидает"},
+        {"task_type": "Access", "description": "Выдача прав доступа новому сотруднику", "priority": "medium", "status": "Ожидает"}
+    ]
+}

@@ -13,9 +13,9 @@
             <form action="/settings/load_json" method="post" class="form-group" style="align-items: center;">
                 <select name="json_file" style="width: 300px; padding: 10px;">
                     {% for j_file in json_files %}
-                    <option value="{{ j_file }}">{{ j_file }}</option>
+                    <option value="{{ j_file }}" {% if j_file == current_scenario %}selected{% endif %}>{{ j_file }}</option>
                     {% else %}
-                    <!-- Заглушки, если реальных файлов пока нет -->
+  
                     <option value="morning_shift.json">morning_shift.json</option>
                     <option value="night_shift.json">night_shift.json</option>
                     <option value="stress_test.json">stress_test.json</option>

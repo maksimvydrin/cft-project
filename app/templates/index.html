@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Индикатор текущего сценария -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+        <span style="font-size: 0.85rem; color: #555; background: #fff; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--cft-border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            Активная база данных: <strong style="color: var(--cft-blue); margin-left: 5px;">{{ current_scenario }}</strong>
+        </span>
+    </div>
     <style>
-        /* Стили для новых Excel-фильтров */
+        /* Стили для Excel-фильтров */
         .filter-select {
             width: 100%;
             padding: 6px;
@@ -18,19 +24,47 @@
         .filter-select:focus { border-color: var(--cft-blue); }
         .th-content { cursor: pointer; display: inline-block; }
         
-        /* Убираем лишние отступы между заголовком и фильтром */
         .header-row th { border-bottom: none; padding-bottom: 8px; }
         .filters-row th { padding-top: 0; }
     </style>
 
-    <!-- Навигация по вкладкам -->
+    {% if session.get('role') == 'admin' %}
+    <!-- Вкладки видны ТОЛЬКО Суперадмину -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tasks-tab', this)">Очередь задач</button>
         <button class="tab-btn" onclick="switchTab('analysts-tab', this)">Аналитики на смене</button>
     </div>
+    {% else %}
+    <!-- Персональная панель смены для обычного аналитика -->
+    {% for analyst in analysts if analyst['name'] == session.get('user_name') %}
+    <div class="card" style="border-left: 4px solid var(--cft-blue); padding: 15px 25px; margin-bottom: 20px;">
+        <form action="/update_analyst/{{ analyst['id'] }}" method="post" style="display: flex; justify-content: space-between; align-items: center; margin: 0; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-weight: 600; font-size: 1.05rem;">Мой профиль смены:</span>
+                <span style="background: #e8f4fd; color: var(--cft-blue); padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                    Уровень: {{ analyst['level'] }}
+                </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 25px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem;">
+                    <input type="checkbox" name="is_available" style="transform: scale(1.3); cursor: pointer;" {% if analyst['is_available'] %}checked{% endif %}>
+                    Я на смене (Доступен)
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.95rem;">
+                    Лимит задач:
+                    <input type="number" name="max_open_tasks" value="{{ analyst['max_open_tasks'] }}" min="1" max="10" style="width: 65px; padding: 6px;">
+                </label>
+                <button type="submit" class="btn-success" style="padding: 8px 16px; font-size: 0.85rem;">💾 Сохранить статус</button>
+            </div>
+        </form>
+    </div>
+    {% endfor %}
+    {% endif %}
 
     <!-- Вкладка 1: Задачи -->
+    <!-- Вкладка 1: Задачи -->
     <div id="tasks-tab" class="tab-content active">
+        {% if session.get('role') == 'admin' %}
         <div class="card">
             <h2>Создать задачу</h2>
             <form action="/" method="post" class="form-group">
@@ -44,13 +78,16 @@
                 <button type="submit">+ Добавить</button>
             </form>
         </div>
+        {% endif %}
 
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h2 style="margin-bottom: 0;">Очередь задач</h2>
+                {% if session.get('role') == 'admin' %}
                 <form action="/distribute" method="post" style="margin: 0;">
                     <button type="submit" class="btn-success" style="transform: translateY(-2px);">🔄 Распределить задачи</button>
                 </form>
+                {% endif %}
             </div>
             
             <table id="tasks-table">
@@ -104,7 +141,8 @@
                         <td><em>{{ task['status'] }}</em></td>
                         <td>{{ task['analyst_name'] if task['analyst_name'] else '—' }}</td>
                         <td>
-                            {% if task['status'] == 'В работе' %}
+                            <!-- Кнопки доступны ТОЛЬКО Суперадмину или Исполнителю этой конкретной задачи -->
+                            {% if task['status'] == 'В работе' and (session.get('role') == 'admin' or task['analyst_name'] == session.get('user_name')) %}
                             <div style="display: flex; gap: 5px;">
                                 <form action="/complete/{{ task['id'] }}" method="post" style="margin: 0;">
                                     <button type="submit" class="btn-success" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 4px;">✔️ Завершить</button>
@@ -128,7 +166,8 @@
         </div>
     </div>
 
-    <!-- Вкладка 2: Аналитики -->
+    {% if session.get('role') == 'admin' %}
+    <!-- Вкладка 2: Аналитики (рендерится ТОЛЬКО для Суперадмина) -->
     <div id="analysts-tab" class="tab-content">
         <div class="card">
             <h2>Управление сменами аналитиков</h2>
@@ -166,6 +205,7 @@
             </table>
         </div>
     </div>
+    {% endif %}
     
     <script>
         // --- Переключение вкладок ---

@@ -1,0 +1,12 @@
+{
+    "analysts": [
+        {"name": "Ольга (L1 - Дежурный)", "level": "L1", "is_available": 1, "max_open_tasks": 4},
+        {"name": "Артем (L2 - Ночь)", "level": "L2", "is_available": 1, "max_open_tasks": 5},
+        {"name": "Виктор (L3 - Тимлид)", "level": "L3", "is_available": 1, "max_open_tasks": 3}
+    ],
+    "tasks": [
+        {"task_type": "Server", "description": "Плановая ночная перезагрузка узла БД", "priority": "medium", "status": "Ожидает"},
+        {"task_type": "Security", "description": "Подозрительная активность: брутфорс SSH", "priority": "high", "status": "Ожидает"},
+        {"task_type": "Backup", "description": "Проверка успешности ночного бэкапа", "priority": "low", "status": "Ожидает"}
+    ]
+}
