@@ -7,7 +7,7 @@ audit_logger = logging.getLogger('cft_audit')
 def distribute_tasks():
     conn = get_db()
     
-    # 1. Получаем все задачи в статусе Ожидает
+    # Получаем все задачи в статусе Ожидает
     pending_tasks = conn.execute('''
         SELECT * FROM tasks 
         WHERE status = 'Ожидает'
@@ -24,14 +24,14 @@ def distribute_tasks():
         audit_logger.info("Распределение: Очередь пуста, новых задач нет.")
         return
 
-    # 2. Получаем всех доступных аналитиков
+    # Получаем всех доступных аналитиков
     analysts = conn.execute('SELECT * FROM analysts WHERE is_available = 1').fetchall()
     
     if not analysts:
         audit_logger.warning("Распределение: Нет доступных аналитиков на смене!")
         return
 
-    # 3. Считаем текущую загрузку каждого аналитика (оптимизированный запрос)
+    # Считаем текущую загрузку каждого аналитика
     workloads = {a['id']: 0 for a in analysts}
     active_tasks = conn.execute('''
         SELECT analyst_id, COUNT(*) as count 
@@ -44,14 +44,14 @@ def distribute_tasks():
         if row['analyst_id'] in workloads:
             workloads[row['analyst_id']] = row['count']
 
-    # ТВОИ ПРАВИЛА МАРШРУТИЗАЦИИ
+    # правила маршрутизации
     routing_rules = {
         'low': ['L1', 'L2', 'L3'],  # Низкий приоритет могут брать все
         'medium': ['L2', 'L3'],     # Средний приоритет
         'high': ['L3']              # Высокий приоритет строго экспертам
     }
 
-    # 4. Распределение
+    # Распределение
     assigned_count = 0
     for task in pending_tasks:
         task_priority = task['priority']

@@ -183,34 +183,58 @@ def create_app():
         if session.get('role') != 'admin':
             return redirect(url_for('home'))
             
-        json_file = request.form.get('json_file')
-        if not json_file or not os.path.exists(json_file):
-            audit_logger.error(f"Ошибка загрузки: файл {json_file} не найден.")
+        selected_file = request.form.get('json_file')
+        if not selected_file or not os.path.exists(selected_file):
+            audit_logger.error(f"Ошибка загрузки: файл {selected_file} не найден.")
             return redirect(url_for('settings'))
 
         try:
-            with open(json_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-
-            if isinstance(data, dict):
-                analysts_data = data.get('analysts', [])
-                tasks_data = data.get('tasks', [])
-            else:
-                analysts_data = data
-                tasks_data = []
-
             conn = get_db()
-            conn.execute('DELETE FROM tasks')
-            conn.execute('DELETE FROM analysts')
-            conn.execute('DELETE FROM sqlite_sequence WHERE name IN ("tasks", "analysts")')
+            
+            # --- ШАГ 1: Собираем полный штат компании из ВСЕХ .json файлов ---
+            all_json_files = [f for f in os.listdir('.') if f.endswith('.json')]
+            for jf in all_json_files:
+                try:
+                    with open(jf, 'r', encoding='utf-8') as f:
+                        jf_data = json.load(f)
+                        analysts_list = jf_data.get('analysts', []) if isinstance(jf_data, dict) else jf_data
+                        
+                        for a in analysts_list:
+                            name = a.get('name')
+                            level = a.get('level', 'L1')
+                            max_tasks = a.get('max_open_tasks', 3)
+                            
+                            existing = conn.execute('SELECT id FROM analysts WHERE name = ?', (name,)).fetchone()
+                            if not existing:
+                                # Добавляем найденного сотрудника в базу (по умолчанию снят со смены)
+                                conn.execute(
+                                    'INSERT INTO analysts (name, level, is_available, max_open_tasks) VALUES (?, ?, 0, ?)',
+                                    (name, level, max_tasks)
+                                )
+                except Exception:
+                    pass  # Игнорируем ошибки при фоновом чтении соседних файлов
 
-            for a in analysts_data:
+            # --- ШАГ 2: Подготавливаем базу (Очищаем задачи, снимаем всех со смены) ---
+            conn.execute('DELETE FROM tasks')
+            conn.execute('DELETE FROM sqlite_sequence WHERE name = "tasks"')
+            conn.execute('UPDATE analysts SET is_available = 0')
+
+            # --- ШАГ 3: Загружаем ВЫБРАННЫЙ сценарий ---
+            with open(selected_file, 'r', encoding='utf-8') as f:
+                scenario_data = json.load(f)
+            
+            s_analysts = scenario_data.get('analysts', []) if isinstance(scenario_data, dict) else scenario_data
+            s_tasks = scenario_data.get('tasks', []) if isinstance(scenario_data, dict) else []
+
+            # Ставим на смену тех, кто указан в выбранном файле
+            for a in s_analysts:
                 conn.execute(
-                    'INSERT INTO analysts (name, level, is_available, max_open_tasks) VALUES (?, ?, ?, ?)',
-                    (a.get('name'), a.get('level', 'L1'), a.get('is_available', 1), a.get('max_open_tasks', 3))
+                    'UPDATE analysts SET is_available = 1, max_open_tasks = ?, level = ? WHERE name = ?',
+                    (a.get('max_open_tasks', 3), a.get('level', 'L1'), a.get('name'))
                 )
 
-            for t in tasks_data:
+            # Загружаем задачи
+            for t in s_tasks:
                 conn.execute(
                     'INSERT INTO tasks (task_type, description, priority, status) VALUES (?, ?, ?, ?)',
                     (t.get('task_type'), t.get('description', ''), t.get('priority', 'medium'), t.get('status', 'Ожидает'))
@@ -218,13 +242,12 @@ def create_app():
 
             conn.commit()
             
-            # Сохраняем название текущего файла
             with open('current_scenario.txt', 'w', encoding='utf-8') as f:
-                f.write(json_file)
+                f.write(selected_file)
                 
-            audit_logger.info(f"Загружен сценарий {json_file}: аналитиков — {len(analysts_data)}, задач — {len(tasks_data)}.")
+            audit_logger.info(f"Синхронизирован штат. Загружен сценарий {selected_file}.")
         except Exception as e:
-            audit_logger.error(f"Ошибка при чтении JSON ({json_file}): {e}")
+            audit_logger.error(f"Ошибка при инициализации базы: {e}")
 
         return redirect(url_for('settings'))
 
