@@ -18,13 +18,16 @@
 ## ⚙️ Установка и запуск
 
 1. Создайте и активируйте виртуальное окружение:
-   ```bash
-   python3.15 -m venv .venv
-   source .venv/bin/activate
-2. Установите зависимости:
-   ```bash
-  pip install flask
-3. Запустите сервер:
-   ```bash
-   python run.py
+```
+python3.15 -m venv .venv 
+source .venv/bin/activate
+```
+2. Установка зависимости
+```
+pip install flask
+```
+3. Запустите сервер
+```
+python run.py
+```
 4. Откройте в браузере: http://127.0.0.1:5000
