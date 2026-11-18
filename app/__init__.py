@@ -81,11 +81,26 @@ def create_app():
             return redirect(url_for('home'))
 
         analysts = conn.execute('SELECT * FROM analysts').fetchall()
-        tasks = conn.execute('''
-            SELECT tasks.*, analysts.name as analyst_name 
-            FROM tasks 
-            LEFT JOIN analysts ON tasks.analyst_id = analysts.id
-        ''').fetchall()
+        
+        # 1. Видимость карточек задач (строго по матрице доступа)
+        role = session.get('role')
+        user_name = session.get('user_name')
+        
+        if role == 'admin':
+            # Суперадмин видит всю глобальную очередь
+            tasks = conn.execute('''
+                SELECT tasks.*, analysts.name as analyst_name 
+                FROM tasks 
+                LEFT JOIN analysts ON tasks.analyst_id = analysts.id
+            ''').fetchall()
+        else:
+            # Обычный аналитик (L1, L2, L3) видит ТОЛЬКО свои личные задачи
+            tasks = conn.execute('''
+                SELECT tasks.*, analysts.name as analyst_name 
+                FROM tasks 
+                LEFT JOIN analysts ON tasks.analyst_id = analysts.id
+                WHERE analysts.name = ?
+            ''', (user_name,)).fetchall()
         
         current_scenario = get_current_scenario()
         return render_template('index.html', analysts=analysts, tasks=tasks, current_scenario=current_scenario)
@@ -99,24 +114,103 @@ def create_app():
         audit_logger.info("Суперадмин запустил распределение задач.")
         return redirect(url_for('home'))
 
+    @app.route('/assign_manual/<int:task_id>', methods=['POST'])
+    def assign_manual(task_id):
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+        
+        analyst_id = request.form.get('analyst_id')
+        if not analyst_id:
+            return redirect(url_for('home'))
+            
+        conn = get_db()
+        
+        # Получаем данные для проверки нарушений
+        task = conn.execute('SELECT * FROM tasks WHERE id = ?', (task_id,)).fetchone()
+        analyst = conn.execute('SELECT * FROM analysts WHERE id = ?', (analyst_id,)).fetchone()
+        current_load = conn.execute('SELECT COUNT(*) FROM tasks WHERE analyst_id = ? AND status = "В работе"', (analyst_id,)).fetchone()[0]
+        
+        # Проверяем, нарушил ли админ правила системы
+        warnings = []
+        if current_load >= analyst['max_open_tasks']:
+            warnings.append(f"Превышен лимит (уже {current_load}/{analyst['max_open_tasks']})")
+        if task['priority'] == 'high' and analyst['level'] not in ['L3']:
+            warnings.append(f"Нарушен уровень (задача High отдана {analyst['level']})")
+        if analyst['is_available'] == 0:
+            warnings.append("Сотрудник не на смене")
+
+        # В любом случае назначаем задачу (Админ всегда прав)
+        conn.execute('UPDATE tasks SET analyst_id = ?, status = "В работе" WHERE id = ?', (analyst_id, task_id))
+        conn.commit()
+        
+        # Записываем в лог результат
+        if warnings:
+            audit_logger.warning(f"РУЧНОЕ ПЕРЕОПРЕДЕЛЕНИЕ: Админ назначил задачу #{task_id} на {analyst['name']}. Игнорировано: {', '.join(warnings)}.")
+        else:
+            audit_logger.info(f"Ручное назначение: Админ назначил задачу #{task_id} на {analyst['name']}.")
+            
+        return redirect(url_for('home'))
+
     @app.route('/complete/<int:task_id>', methods=['POST'])
     def complete_task(task_id):
         conn = get_db()
+        comment = request.form.get('resolution_comment', 'Без комментариев')
+        
         conn.execute('UPDATE tasks SET status = "Завершена" WHERE id = ?', (task_id,))
         conn.commit()
-        audit_logger.info(f"Задача #{task_id} переведена в статус 'Завершена' пользователем {session.get('user_name')}.")
+        
+        audit_logger.info(f"Задача #{task_id} завершена пользователем {session.get('user_name')}. Результат: {comment}")
         return redirect(url_for('home'))
 
     @app.route('/escalate/<int:task_id>', methods=['POST'])
     def escalate_task(task_id):
         conn = get_db()
+        user_name = session.get('user_name')
+        role = session.get('role')
+        
+        # Узнаем уровень текущего сотрудника
+        analyst = conn.execute('SELECT level FROM analysts WHERE name = ?', (user_name,)).fetchone()
+        
+        # Логика повышения приоритета для маршрутизатора
+        if role == 'admin':
+            new_priority = 'high'  # Админ эскалирует сразу до критического
+        else:
+            if analyst and analyst['level'] == 'L3':
+                # L3 не имеет права эскалировать задачи
+                audit_logger.warning(f"Нарушение прав: {user_name} (L3) попытался эскалировать задачу #{task_id}.")
+                return redirect(url_for('home'))
+            
+            # L1 повышает до Medium (уйдет к L2/L3), L2 повышает до High (уйдет к L3)
+            new_priority = 'medium' if analyst['level'] == 'L1' else 'high'
+
+        # Сбрасываем задачу обратно в очередь с новым приоритетом
         conn.execute('''
             UPDATE tasks 
-            SET status = "Ожидает", analyst_id = NULL, priority = "high" 
+            SET status = "Ожидает", analyst_id = NULL, priority = ? 
             WHERE id = ?
-        ''', (task_id,))
+        ''', (new_priority, task_id))
         conn.commit()
-        audit_logger.warning(f"Задача #{task_id} была эскалирована пользователем {session.get('user_name')}!")
+        
+        audit_logger.warning(f"Задача #{task_id} эскалирована пользователем {user_name}. Новый приоритет: {new_priority}.")
+        return redirect(url_for('home'))
+
+    @app.route('/edit_task/<int:task_id>', methods=['POST'])
+    def edit_task(task_id):
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+            
+        new_type = request.form.get('new_type')
+        new_priority = request.form.get('new_priority')
+        reason = request.form.get('reason')
+        
+        conn = get_db()
+        # Получаем старые данные для красивого лога
+        old = conn.execute('SELECT task_type, priority FROM tasks WHERE id = ?', (task_id,)).fetchone()
+        
+        conn.execute('UPDATE tasks SET task_type = ?, priority = ? WHERE id = ?', (new_type, new_priority, task_id))
+        conn.commit()
+        
+        audit_logger.warning(f"Админ изменил задачу #{task_id}. Тип: {old['task_type']} -> {new_type}, Приоритет: {old['priority']} -> {new_priority}. Причина: {reason}")
         return redirect(url_for('home'))
 
     @app.route('/update_analyst/<int:id>', methods=['POST'])
@@ -138,19 +232,45 @@ def create_app():
         audit_logger.info(f"Пользователь {session.get('user_name')} обновил статус аналитика #{id}: Доступен={bool(is_available)}, Лимит={max_open_tasks}")
         return redirect(url_for('home'))
 
+    @app.route('/settings/update_rules', methods=['POST'])
+    def update_rules():
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+        
+        # Собираем данные с галочек
+        rules = {'low': [], 'medium': [], 'high': []}
+        for priority in rules.keys():
+            for level in ['L1', 'L2', 'L3']:
+                if request.form.get(f'rule_{priority}_{level}'):
+                    rules[priority].append(level)
+                    
+        with open('routing_rules.json', 'w', encoding='utf-8') as f:
+            json.dump(rules, f)
+            
+        audit_logger.info(f"Суперадмин обновил матрицу компетенций: {rules}")
+        return redirect(url_for('settings'))
+
     @app.route('/settings')
     def settings():
         if session.get('role') != 'admin':
             return redirect(url_for('home'))
+            
         log_content = ""
         if os.path.exists('system.log'):
             with open('system.log', 'r', encoding='utf-8') as f:
                 log_content = "".join(f.readlines()[-50:])
         
-        json_files = [f for f in os.listdir('.') if f.endswith('.json')]
+        # Загружаем текущие правила для отображения галочек
+        rules = {'low': ['L1', 'L2', 'L3'], 'medium': ['L2', 'L3'], 'high': ['L3']}
+        if os.path.exists('routing_rules.json'):
+            with open('routing_rules.json', 'r', encoding='utf-8') as f:
+                rules = json.load(f)
+        
+        json_files = [f for f in os.listdir('.') if f.endswith('.json') and f != 'routing_rules.json']
         current_scenario = get_current_scenario()
-        return render_template('settings.html', log_content=log_content, json_files=json_files, current_scenario=current_scenario)
+        return render_template('settings.html', log_content=log_content, json_files=json_files, current_scenario=current_scenario, rules=rules)
 
+        
     @app.route('/settings/view_logs')
     def view_logs():
         if session.get('role') != 'admin':

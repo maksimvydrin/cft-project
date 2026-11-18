@@ -1,17 +1,47 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ЦФТ - Управление задачами</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Предзагрузка темы, чтобы избежать мерцания при обновлении страницы -->
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+
     <style>
+        /* Оригинальная светлая тема ЦФТ */
         :root {
             --cft-blue: #004D99;
             --cft-orange: #FF7300;
-            --cft-bg: #F0F3F7; /* Чуть более плотный серый фон для контраста */
+            --cft-bg: #F0F3F7; 
             --cft-text: #2B2D33;
+            --cft-text-muted: #555555;
             --cft-border: #E1E5EB;
+            --cft-card-bg: #FFFFFF;
+            --cft-table-header: #F8FAFC;
+            --cft-hover-bg: #F8FAFC;
+            --cft-input-bg: #FFFFFF;
+            --cft-pattern: radial-gradient(#d5dbe4 1px, transparent 1px);
+        }
+
+        /* Темная тема ЦФТ */
+        [data-theme="dark"] {
+            --cft-blue: #4FA0F0; /* Более светлый синий для темного фона */
+            --cft-orange: #FF8F33; 
+            --cft-bg: #121418; /* Темно-серый фон */
+            --cft-text: #E1E5EB;
+            --cft-text-muted: #A0AAB5;
+            --cft-border: #2D333B;
+            --cft-card-bg: #1C2128; /* Фон карточек */
+            --cft-table-header: #22272E;
+            --cft-hover-bg: #22272E;
+            --cft-input-bg: #22272E;
+            --cft-pattern: radial-gradient(#2d333b 1px, transparent 1px);
         }
 
         body {
@@ -20,9 +50,9 @@
             color: var(--cft-text);
             margin: 0;
             padding: 20px;
-            /* Едва заметный фоновый паттерн для заполнения пустоты */
-            background-image: radial-gradient(#d5dbe4 1px, transparent 1px);
+            background-image: var(--cft-pattern);
             background-size: 20px 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -40,17 +70,17 @@
         .header {
             margin-bottom: 25px;
             padding: 15px 24px;
-            background: #FFFFFF;
+            background: var(--cft-card-bg);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 77, 153, 0.04);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             border-left: 5px solid var(--cft-orange);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
         }
         .header:hover {
-            box-shadow: 0 6px 16px rgba(0, 77, 153, 0.08);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
         }
 
         .header-logo h1 {
@@ -59,9 +89,10 @@
             font-size: 1.4rem;
             font-weight: 700;
             letter-spacing: 0.5px;
+            transition: color 0.3s;
         }
 
-        .nav-links { display: flex; gap: 20px; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
         .nav-links a {
             text-decoration: none;
             color: var(--cft-text);
@@ -76,27 +107,27 @@
 
         /* Карточки с hover-эффектом */
         .card {
-            background: #FFFFFF;
+            background: var(--cft-card-bg);
             border-radius: 8px;
             padding: 24px;
             margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.02);
             border: 1px solid var(--cft-border);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s;
         }
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 77, 153, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
 
-        h1, h2 { color: var(--cft-blue); margin-top: 0; font-weight: 600; }
+        h1, h2, h3 { color: var(--cft-blue); margin-top: 0; font-weight: 600; transition: color 0.3s; }
         h2 { font-size: 1.1rem; margin-bottom: 20px; }
 
         /* Вкладки */
         .tabs { margin-bottom: 20px; display: flex; gap: 10px; border-bottom: 1px solid var(--cft-border); padding-bottom: 0; }
         .tab-btn {
             background-color: transparent;
-            color: #666;
+            color: var(--cft-text-muted);
             border: none;
             border-bottom: 3px solid transparent;
             padding: 12px 20px;
@@ -126,35 +157,37 @@
             padding: 16px 12px;
             text-align: left;
             border-bottom: 1px solid var(--cft-border);
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, border-color 0.3s;
         }
         th {
-            background-color: #F8FAFC;
-            color: #555;
+            background-color: var(--cft-table-header);
+            color: var(--cft-text-muted);
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.5px;
             border-top: 1px solid var(--cft-border);
         }
-        tr:hover td { background-color: #F8FAFC; }
+        tr:hover td { background-color: var(--cft-hover-bg); }
 
         /* Формы и кнопки */
-        input, select {
+        input, select, textarea {
             padding: 10px 14px;
             border: 1px solid var(--cft-border);
             border-radius: 6px;
             font-family: inherit;
             font-size: 0.9rem;
+            background-color: var(--cft-input-bg);
+            color: var(--cft-text);
             outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
         }
-        input:focus, select:focus { 
+        input:focus, select:focus, textarea:focus { 
             border-color: var(--cft-blue);
             box-shadow: 0 0 0 3px rgba(0, 77, 153, 0.1);
         }
         
-        button {
+        button, .btn-success, .btn-warning {
             background-color: var(--cft-blue);
             color: white;
             border: none;
@@ -165,10 +198,25 @@
             font-family: inherit;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        button:hover { background-color: #003D7A; box-shadow: 0 4px 10px rgba(0, 77, 153, 0.2); transform: translateY(-1px); }
+        button:hover { opacity: 0.9; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
         button:active { transform: scale(0.97); box-shadow: none; }
         
+        .btn-success { background-color: #27ae60; }
+        
         .form-group { display: flex; gap: 12px; margin-bottom: 15px; }
+
+        /* Кнопка переключения темы */
+        #theme-toggle {
+            background: transparent;
+            padding: 5px 10px;
+            font-size: 1.2rem;
+            box-shadow: none;
+        }
+        #theme-toggle:hover {
+            transform: scale(1.1);
+            background: transparent;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -177,21 +225,51 @@
             <div class="header-logo">
                 <h1>ЦФТ | Service Desk</h1>
             </div>
-            <div class="nav-links" style="align-items: center;">
+            <div class="nav-links">
                 {% if session.get('role') %}
                     <a href="/">Главная</a>
                     {% if session.get('role') == 'admin' %}
                         <a href="/settings">Настройки</a>
                     {% endif %}
                     <span style="color: var(--cft-border);">|</span>
-                    <span style="font-size: 0.85rem; color: #555; background: #F0F3F7; padding: 5px 10px; border-radius: 4px; font-weight: 500;">
+                    <span style="font-size: 0.85rem; color: var(--cft-text-muted); background: var(--cft-bg); padding: 5px 10px; border-radius: 4px; font-weight: 500;">
                         👤 {{ session.get('user_name') }}
                     </span>
                     <a href="/logout" style="color: #e74c3c; font-size: 0.85rem;">Выйти</a>
+                    
+                    <!-- Кнопка переключения темы -->
+                    <button id="theme-toggle" title="Переключить тему">🌙</button>
                 {% endif %}
             </div>
         </div>
+        
         {% block content %}{% endblock %}
     </div>
+
+    <!-- Скрипт переключения темы -->
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        if (themeToggle) {
+            // Инициализация иконки при загрузке
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                themeToggle.textContent = '☀️';
+            }
+
+            // Переключение по клику
+            themeToggle.addEventListener('click', () => {
+                let currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                    themeToggle.textContent = '🌙';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    themeToggle.textContent = '☀️';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

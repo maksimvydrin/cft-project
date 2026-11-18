@@ -1,4 +1,6 @@
 import logging
+import json
+import os
 from app import get_db
 
 # Подключаемся к нашему системному логгеру
@@ -44,12 +46,21 @@ def distribute_tasks():
         if row['analyst_id'] in workloads:
             workloads[row['analyst_id']] = row['count']
 
-    # правила маршрутизации
+    # === ДИНАМИЧЕСКАЯ ЗАГРУЗКА ПРАВИЛ ИЗ НАСТРОЕК ===
+    # Дефолтные правила на случай, если админ еще ничего не сохранял
     routing_rules = {
-        'low': ['L1', 'L2', 'L3'],  # Низкий приоритет могут брать все
-        'medium': ['L2', 'L3'],     # Средний приоритет
-        'high': ['L3']              # Высокий приоритет строго экспертам
+        'low': ['L1', 'L2', 'L3'],  
+        'medium': ['L2', 'L3'],     
+        'high': ['L3']              
     }
+    
+    # Пытаемся прочитать правила, сохраненные Суперадмином из интерфейса
+    if os.path.exists('routing_rules.json'):
+        try:
+            with open('routing_rules.json', 'r', encoding='utf-8') as f:
+                routing_rules = json.load(f)
+        except Exception as e:
+            audit_logger.error(f"Ошибка чтения матрицы распределения: {e}")
 
     # Распределение
     assigned_count = 0
@@ -66,9 +77,8 @@ def distribute_tasks():
             a_level = analyst['level']
             current_load = workloads[a_id]
 
-            # Проверяем 2 условия: не превышен лимит И уровень аналитика подходит для задачи
+            # Проверяем лимит и наличие уровня в разрешенных (по галочкам из настроек)
             if current_load < analyst['max_open_tasks'] and a_level in allowed_levels:
-                # Дополнительное условие: выбираем того, у кого сейчас МЕНЬШЕ всего задач
                 if current_load < lowest_load:
                     lowest_load = current_load
                     best_analyst = analyst
@@ -84,7 +94,7 @@ def distribute_tasks():
             assigned_count += 1
             audit_logger.info(f"Задача #{task['id']} ({task_priority}) ушла к {best_analyst['name']} (Уровень {best_analyst['level']}). Загрузка: {workloads[a_id]}/{best_analyst['max_open_tasks']}")
         else:
-            audit_logger.warning(f"Для задачи #{task['id']} ({task_priority}) не нашлось свободных аналитиков нужного уровня.")
+            audit_logger.warning(f"Для задачи #{task['id']} ({task_priority}) не нашлось свободных аналитиков нужного уровня (Разрешены: {', '.join(allowed_levels)}).")
 
     conn.commit()
     if assigned_count > 0:
