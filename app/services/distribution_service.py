@@ -3,13 +3,12 @@ import json
 import os
 from app import get_db
 
-# Подключаемся к нашему системному логгеру
 audit_logger = logging.getLogger('cft_audit')
 
 def distribute_tasks():
     conn = get_db()
     
-    # Получаем все задачи в статусе Ожидает
+    # Получаем все задачи
     pending_tasks = conn.execute('''
         SELECT * FROM tasks 
         WHERE status = 'Ожидает'
@@ -46,15 +45,14 @@ def distribute_tasks():
         if row['analyst_id'] in workloads:
             workloads[row['analyst_id']] = row['count']
 
-    # === ДИНАМИЧЕСКАЯ ЗАГРУЗКА ПРАВИЛ ИЗ НАСТРОЕК ===
-    # Дефолтные правила на случай, если админ еще ничего не сохранял
+
     routing_rules = {
         'low': ['L1', 'L2', 'L3'],  
         'medium': ['L2', 'L3'],     
         'high': ['L3']              
     }
     
-    # Пытаемся прочитать правила, сохраненные Суперадмином из интерфейса
+
     if os.path.exists('routing_rules.json'):
         try:
             with open('routing_rules.json', 'r', encoding='utf-8') as f:
@@ -77,7 +75,7 @@ def distribute_tasks():
             a_level = analyst['level']
             current_load = workloads[a_id]
 
-            # Проверяем лимит и наличие уровня в разрешенных (по галочкам из настроек)
+            # Проверяем лимит и наличие уровня в разрешенных
             if current_load < analyst['max_open_tasks'] and a_level in allowed_levels:
                 if current_load < lowest_load:
                     lowest_load = current_load

@@ -3,7 +3,7 @@
 {% block content %}
     <div class="card">
         <h2>Настройки системы</h2>
-        <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">
+        <p style="color: var(--cft-text-muted); margin-bottom: 25px; font-size: 0.9rem;">
             Панель администратора: управление источниками данных, правилами и логированием.
         </p>
 
@@ -22,42 +22,42 @@
                 </select>
                 <button type="submit" class="btn-warning">🔄 Инициализировать базу</button>
             </form>
-            <p style="font-size: 0.8rem; color: #888; margin-top: 5px; margin-bottom: 0;">Выбор нового файла сотрет текущие данные аналитиков и загрузит новые.</p>
+            <p style="font-size: 0.8rem; color: var(--cft-text-muted); margin-top: 5px; margin-bottom: 0;">Выбор нового файла сотрет текущие данные аналитиков и загрузит новые.</p>
         </div>
 
-        <!-- НОВАЯ СЕКЦИЯ: Правила распределения -->
+        <!-- Правила распределения -->
         <div style="margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px solid var(--cft-border);">
             <h3 style="color: var(--cft-blue); font-size: 1.05rem; margin-bottom: 15px;">Матрица компетенций (Правила маршрутизации)</h3>
-            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">Настройте, на какие уровни алгоритм имеет право автоматически назначать задачи.</p>
+            <p style="font-size: 0.85rem; color: var(--cft-text-muted); margin-bottom: 15px;">Настройте, на какие уровни алгоритм имеет право автоматически назначать задачи.</p>
             
             <form action="/settings/update_rules" method="post" style="display: flex; flex-direction: column; gap: 15px;">
                 <table style="width: 100%; max-width: 600px; border-collapse: collapse; text-align: center;">
                     <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="padding: 10px; border: 1px solid #ddd;">Приоритет</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">Джун (L1)</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">Мидл (L2)</th>
-                            <th style="padding: 10px; border: 1px solid #ddd;">Сеньор (L3)</th>
+                        <tr style="background-color: var(--cft-table-header);">
+                            <th style="padding: 10px; border: 1px solid var(--cft-border);">Приоритет</th>
+                            <th style="padding: 10px; border: 1px solid var(--cft-border);">Джун (L1)</th>
+                            <th style="padding: 10px; border: 1px solid var(--cft-border);">Мидл (L2)</th>
+                            <th style="padding: 10px; border: 1px solid var(--cft-border);">Сеньор (L3)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #27ae60;">Низкий (Low)</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_low_L1" {% if rules and 'L1' in rules.get('low', []) %}checked{% endif %}></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_low_L2" {% if rules and 'L2' in rules.get('low', []) %}checked{% endif %}></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_low_L3" {% if rules and 'L3' in rules.get('low', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border); font-weight: bold; color: #27ae60;">Низкий (Low)</td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_low_L1" {% if rules and 'L1' in rules.get('low', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_low_L2" {% if rules and 'L2' in rules.get('low', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_low_L3" {% if rules and 'L3' in rules.get('low', []) %}checked{% endif %}></td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #f39c12;">Средний (Medium)</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_medium_L1" {% if rules and 'L1' in rules.get('medium', []) %}checked{% endif %}></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_medium_L2" {% if rules and 'L2' in rules.get('medium', []) %}checked{% endif %}></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_medium_L3" {% if rules and 'L3' in rules.get('medium', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border); font-weight: bold; color: #f39c12;">Средний (Medium)</td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_medium_L1" {% if rules and 'L1' in rules.get('medium', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_medium_L2" {% if rules and 'L2' in rules.get('medium', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_medium_L3" {% if rules and 'L3' in rules.get('medium', []) %}checked{% endif %}></td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">Высокий (High)</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_high_L1" {% if rules and 'L1' in rules.get('high', []) %}checked{% endif %}></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_high_L2" {% if rules and 'L2' in rules.get('high', []) %}checked{% endif %}></td>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><input type="checkbox" name="rule_high_L3" {% if rules and 'L3' in rules.get('high', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border); font-weight: bold; color: #e74c3c;">Высокий (High)</td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_high_L1" {% if rules and 'L1' in rules.get('high', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_high_L2" {% if rules and 'L2' in rules.get('high', []) %}checked{% endif %}></td>
+                            <td style="padding: 10px; border: 1px solid var(--cft-border);"><input type="checkbox" name="rule_high_L3" {% if rules and 'L3' in rules.get('high', []) %}checked{% endif %}></td>
                         </tr>
                     </tbody>
                 </table>
@@ -67,26 +67,23 @@
             </form>
         </div>
 
-        <!-- Секция Логов -->
+        <!-- Секция Логов (без кнопки очистки — аудит неизменяем) -->
         <div style="margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="color: var(--cft-blue); font-size: 1.05rem; margin: 0;">Журнал событий (Логи)</h3>
+                <h3 style="color: var(--cft-blue); font-size: 1.05rem; margin: 0;">Журнал событий (Неизменяемый аудит)</h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <a href="/settings/view_logs" target="_blank" style="background-color: #3498db; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">📄 Открыть в новой вкладке</a>
                     <a href="/settings/download_logs" style="background-color: #27ae60; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">⬇️ Скачать .log</a>
-                    <form action="/settings/clear_logs" method="post" style="margin: 0;">
-                        <button type="submit" style="background-color: #6c757d; padding: 8px 16px; font-size: 0.85rem;">Очистить</button>
-                    </form>
                 </div>
             </div>
-            <textarea readonly style="width: 100%; height: 300px; background-color: #1E1E1E; color: #A9B7C6; font-family: 'Courier New', monospace; padding: 15px; border-radius: 6px; border: none; resize: vertical; box-sizing: border-box; font-size: 0.85rem; line-height: 1.4;">{{ log_content if log_content else 'Журнал событий пуст или файл system.log еще не создан...' }}</textarea>
+            <textarea readonly style="width: 100%; height: 300px; background-color: #1E1E1E; color: #A9B7C6; font-family: 'Courier New', monospace; padding: 15px; border-radius: 6px; border: 1px solid var(--cft-border); resize: vertical; box-sizing: border-box; font-size: 0.85rem; line-height: 1.4;">{{ log_content if log_content else 'Журнал событий пуст или файл system.log еще не создан...' }}</textarea>
         </div>
     </div>
 
     <!-- Опасная зона -->
     <div class="card" style="border-top: 3px solid #e74c3c;">
         <h2 style="color: #e74c3c; margin-bottom: 10px;">Опасная зона</h2>
-        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">Сброс всех существующих задач в очереди. Действие необратимо.</p>
+        <p style="color: var(--cft-text-muted); font-size: 0.9rem; margin-bottom: 15px;">Сброс всех существующих задач в очереди. Действие необратимо.</p>
         <form action="/settings/reset" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить ВСЕ задачи?');">
             <button type="submit" style="background-color: #e74c3c;">🗑 Очистить очередь задач</button>
         </form>

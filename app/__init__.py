@@ -18,7 +18,6 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-# Вспомогательная функция для получения названия текущей базы
 def get_current_scenario():
     if os.path.exists('current_scenario.txt'):
         with open('current_scenario.txt', 'r', encoding='utf-8') as f:
@@ -81,20 +80,16 @@ def create_app():
             return redirect(url_for('home'))
 
         analysts = conn.execute('SELECT * FROM analysts').fetchall()
-        
-        # 1. Видимость карточек задач (строго по матрице доступа)
         role = session.get('role')
         user_name = session.get('user_name')
         
         if role == 'admin':
-            # Суперадмин видит всю глобальную очередь
             tasks = conn.execute('''
                 SELECT tasks.*, analysts.name as analyst_name 
                 FROM tasks 
                 LEFT JOIN analysts ON tasks.analyst_id = analysts.id
             ''').fetchall()
         else:
-            # Обычный аналитик (L1, L2, L3) видит ТОЛЬКО свои личные задачи
             tasks = conn.execute('''
                 SELECT tasks.*, analysts.name as analyst_name 
                 FROM tasks 
@@ -124,13 +119,10 @@ def create_app():
             return redirect(url_for('home'))
             
         conn = get_db()
-        
-        # Получаем данные для проверки нарушений
         task = conn.execute('SELECT * FROM tasks WHERE id = ?', (task_id,)).fetchone()
         analyst = conn.execute('SELECT * FROM analysts WHERE id = ?', (analyst_id,)).fetchone()
         current_load = conn.execute('SELECT COUNT(*) FROM tasks WHERE analyst_id = ? AND status = "В работе"', (analyst_id,)).fetchone()[0]
         
-        # Проверяем, нарушил ли админ правила системы
         warnings = []
         if current_load >= analyst['max_open_tasks']:
             warnings.append(f"Превышен лимит (уже {current_load}/{analyst['max_open_tasks']})")
@@ -139,16 +131,37 @@ def create_app():
         if analyst['is_available'] == 0:
             warnings.append("Сотрудник не на смене")
 
-        # В любом случае назначаем задачу (Админ всегда прав)
+        action_label = "Переназначение" if task['analyst_id'] else "Ручное назначение"
         conn.execute('UPDATE tasks SET analyst_id = ?, status = "В работе" WHERE id = ?', (analyst_id, task_id))
         conn.commit()
         
-        # Записываем в лог результат
         if warnings:
-            audit_logger.warning(f"РУЧНОЕ ПЕРЕОПРЕДЕЛЕНИЕ: Админ назначил задачу #{task_id} на {analyst['name']}. Игнорировано: {', '.join(warnings)}.")
+            audit_logger.warning(f"РУЧНОЕ ПЕРЕОПРЕДЕЛЕНИЕ ({action_label}): Админ назначил задачу #{task_id} на {analyst['name']}. Игнорировано: {', '.join(warnings)}.")
         else:
-            audit_logger.info(f"Ручное назначение: Админ назначил задачу #{task_id} на {analyst['name']}.")
+            audit_logger.info(f"{action_label}: Админ назначил задачу #{task_id} на {analyst['name']}.")
             
+        return redirect(url_for('home'))
+
+    @app.route('/unassign_task/<int:task_id>', methods=['POST'])
+    def unassign_task(task_id):
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+        conn = get_db()
+        conn.execute('UPDATE tasks SET analyst_id = NULL, status = "Ожидает" WHERE id = ?', (task_id,))
+        conn.commit()
+        audit_logger.warning(f"Суперадмин снял исполнителя с задачи #{task_id} и вернул её в очередь.")
+        return redirect(url_for('home'))
+
+    @app.route('/delete_task/<int:task_id>', methods=['POST'])
+    def delete_task(task_id):
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+        conn = get_db()
+        task = conn.execute('SELECT task_type, priority FROM tasks WHERE id = ?', (task_id,)).fetchone()
+        conn.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
+        conn.commit()
+        if task:
+            audit_logger.warning(f"Суперадмин удалил задачу #{task_id} (Тип={task['task_type']}, Приоритет={task['priority']}).")
         return redirect(url_for('home'))
 
     @app.route('/complete/<int:task_id>', methods=['POST'])
@@ -168,22 +181,16 @@ def create_app():
         user_name = session.get('user_name')
         role = session.get('role')
         
-        # Узнаем уровень текущего сотрудника
         analyst = conn.execute('SELECT level FROM analysts WHERE name = ?', (user_name,)).fetchone()
         
-        # Логика повышения приоритета для маршрутизатора
         if role == 'admin':
-            new_priority = 'high'  # Админ эскалирует сразу до критического
+            new_priority = 'high'
         else:
             if analyst and analyst['level'] == 'L3':
-                # L3 не имеет права эскалировать задачи
                 audit_logger.warning(f"Нарушение прав: {user_name} (L3) попытался эскалировать задачу #{task_id}.")
                 return redirect(url_for('home'))
-            
-            # L1 повышает до Medium (уйдет к L2/L3), L2 повышает до High (уйдет к L3)
             new_priority = 'medium' if analyst['level'] == 'L1' else 'high'
 
-        # Сбрасываем задачу обратно в очередь с новым приоритетом
         conn.execute('''
             UPDATE tasks 
             SET status = "Ожидает", analyst_id = NULL, priority = ? 
@@ -204,13 +211,44 @@ def create_app():
         reason = request.form.get('reason')
         
         conn = get_db()
-        # Получаем старые данные для красивого лога
         old = conn.execute('SELECT task_type, priority FROM tasks WHERE id = ?', (task_id,)).fetchone()
         
         conn.execute('UPDATE tasks SET task_type = ?, priority = ? WHERE id = ?', (new_type, new_priority, task_id))
         conn.commit()
         
         audit_logger.warning(f"Админ изменил задачу #{task_id}. Тип: {old['task_type']} -> {new_type}, Приоритет: {old['priority']} -> {new_priority}. Причина: {reason}")
+        return redirect(url_for('home'))
+
+    @app.route('/add_analyst', methods=['POST'])
+    def add_analyst():
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+        name = request.form.get('name', '').strip()
+        level = request.form.get('level', 'L1')
+        max_open_tasks = int(request.form.get('max_open_tasks', 3))
+        is_available = 1 if request.form.get('is_available') else 0
+
+        if name:
+            conn = get_db()
+            conn.execute(
+                'INSERT INTO analysts (name, level, is_available, max_open_tasks) VALUES (?, ?, ?, ?)',
+                (name, level, is_available, max_open_tasks)
+            )
+            conn.commit()
+            audit_logger.info(f"Суперадмин добавил аналитика: {name} ({level}), Лимит={max_open_tasks}, Доступен={bool(is_available)}")
+        return redirect(url_for('home'))
+
+    @app.route('/delete_analyst/<int:id>', methods=['POST'])
+    def delete_analyst(id):
+        if session.get('role') != 'admin':
+            return redirect(url_for('home'))
+        conn = get_db()
+        analyst = conn.execute('SELECT name FROM analysts WHERE id = ?', (id,)).fetchone()
+        if analyst:
+            conn.execute('UPDATE tasks SET analyst_id = NULL, status = "Ожидает" WHERE analyst_id = ? AND status = "В работе"', (id,))
+            conn.execute('DELETE FROM analysts WHERE id = ?', (id,))
+            conn.commit()
+            audit_logger.warning(f"Суперадмин удалил аналитика #{id} ({analyst['name']}). Его активные задачи возвращены в очередь.")
         return redirect(url_for('home'))
 
     @app.route('/update_analyst/<int:id>', methods=['POST'])
@@ -237,7 +275,6 @@ def create_app():
         if session.get('role') != 'admin':
             return redirect(url_for('home'))
         
-        # Собираем данные с галочек
         rules = {'low': [], 'medium': [], 'high': []}
         for priority in rules.keys():
             for level in ['L1', 'L2', 'L3']:
@@ -260,7 +297,6 @@ def create_app():
             with open('system.log', 'r', encoding='utf-8') as f:
                 log_content = "".join(f.readlines()[-50:])
         
-        # Загружаем текущие правила для отображения галочек
         rules = {'low': ['L1', 'L2', 'L3'], 'medium': ['L2', 'L3'], 'high': ['L3']}
         if os.path.exists('routing_rules.json'):
             with open('routing_rules.json', 'r', encoding='utf-8') as f:
@@ -270,7 +306,6 @@ def create_app():
         current_scenario = get_current_scenario()
         return render_template('settings.html', log_content=log_content, json_files=json_files, current_scenario=current_scenario, rules=rules)
 
-        
     @app.route('/settings/view_logs')
     def view_logs():
         if session.get('role') != 'admin':
@@ -290,14 +325,6 @@ def create_app():
             return send_file(log_path, as_attachment=True)
         return redirect(url_for('settings'))
 
-    @app.route('/settings/clear_logs', methods=['POST'])
-    def clear_logs():
-        if session.get('role') != 'admin':
-            return redirect(url_for('home'))
-        open('system.log', 'w').close()
-        audit_logger.info("Системный журнал был принудительно очищен Суперадмином.")
-        return redirect(url_for('settings'))
-
     @app.route('/settings/load_json', methods=['POST'])
     def load_json():
         if session.get('role') != 'admin':
@@ -310,8 +337,6 @@ def create_app():
 
         try:
             conn = get_db()
-            
-            # --- ШАГ 1: Собираем полный штат компании из ВСЕХ .json файлов ---
             all_json_files = [f for f in os.listdir('.') if f.endswith('.json')]
             for jf in all_json_files:
                 try:
@@ -326,34 +351,29 @@ def create_app():
                             
                             existing = conn.execute('SELECT id FROM analysts WHERE name = ?', (name,)).fetchone()
                             if not existing:
-                                # Добавляем найденного сотрудника в базу (по умолчанию снят со смены)
                                 conn.execute(
                                     'INSERT INTO analysts (name, level, is_available, max_open_tasks) VALUES (?, ?, 0, ?)',
                                     (name, level, max_tasks)
                                 )
                 except Exception:
-                    pass  # Игнорируем ошибки при фоновом чтении соседних файлов
+                    pass
 
-            # --- ШАГ 2: Подготавливаем базу (Очищаем задачи, снимаем всех со смены) ---
             conn.execute('DELETE FROM tasks')
             conn.execute('DELETE FROM sqlite_sequence WHERE name = "tasks"')
             conn.execute('UPDATE analysts SET is_available = 0')
 
-            # --- ШАГ 3: Загружаем ВЫБРАННЫЙ сценарий ---
             with open(selected_file, 'r', encoding='utf-8') as f:
                 scenario_data = json.load(f)
             
             s_analysts = scenario_data.get('analysts', []) if isinstance(scenario_data, dict) else scenario_data
             s_tasks = scenario_data.get('tasks', []) if isinstance(scenario_data, dict) else []
 
-            # Ставим на смену тех, кто указан в выбранном файле
             for a in s_analysts:
                 conn.execute(
                     'UPDATE analysts SET is_available = 1, max_open_tasks = ?, level = ? WHERE name = ?',
                     (a.get('max_open_tasks', 3), a.get('level', 'L1'), a.get('name'))
                 )
 
-            # Загружаем задачи
             for t in s_tasks:
                 conn.execute(
                     'INSERT INTO tasks (task_type, description, priority, status) VALUES (?, ?, ?, ?)',
@@ -379,7 +399,6 @@ def create_app():
         conn.execute('DELETE FROM tasks')
         conn.commit()
         
-        # Обновляем статус при ручной очистке
         with open('current_scenario.txt', 'w', encoding='utf-8') as f:
             f.write("База очищена (Пустая)")
             

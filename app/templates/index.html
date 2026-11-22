@@ -8,7 +8,6 @@
         </span>
     </div>
     <style>
-        /* Стили для Excel-фильтров */
         .filter-select {
             width: 100%;
             padding: 6px;
@@ -23,14 +22,9 @@
         }
         .filter-select:focus { border-color: var(--cft-blue); }
         .th-content { cursor: pointer; display: inline-block; }
-        
         .header-row th { border-bottom: none; padding-bottom: 8px; }
         .filters-row th { padding-top: 0; }
-        
-        /* Убираем стандартный маркер у details для красоты */
         details summary::-webkit-details-marker { display: none; }
-
-        /* Подсветка строки при наведении мыши (Hover эффект) */
         #tasks-table tbody tr:hover {
             background-color: var(--cft-hover-bg);
             transition: background-color 0.2s ease;
@@ -38,13 +32,11 @@
     </style>
 
     {% if session.get('role') == 'admin' %}
-    <!-- Вкладки видны ТОЛЬКО Суперадмину -->
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('tasks-tab', this)">Очередь задач</button>
         <button class="tab-btn" onclick="switchTab('analysts-tab', this)">Аналитики на смене</button>
     </div>
     {% else %}
-    <!-- Персональная панель смены для обычного аналитика -->
     {% for analyst in analysts if analyst['name'] == session.get('user_name') %}
     <div class="card" style="border-left: 4px solid var(--cft-blue); padding: 15px 25px; margin-bottom: 20px;">
         <form action="/update_analyst/{{ analyst['id'] }}" method="post" style="display: flex; justify-content: space-between; align-items: center; margin: 0; flex-wrap: wrap; gap: 15px;">
@@ -71,7 +63,6 @@
     {% endif %}
 
     <!-- Вкладка 1: Задачи -->
-
     <div id="tasks-tab" class="tab-content active">
         {% if session.get('role') == 'admin' %}
         <div class="card">
@@ -112,27 +103,11 @@
                     </tr>
                     <tr class="filters-row">
                         <th></th>
-                        <th>
-                            <select class="filter-select" data-col="1" onchange="applyFilters()">
-                                <option value="all">Все</option>
-                            </select>
-                        </th>
+                        <th><select class="filter-select" data-col="1" onchange="applyFilters()"><option value="all">Все</option></select></th>
                         <th></th>
-                        <th>
-                            <select class="filter-select" data-col="3" onchange="applyFilters()">
-                                <option value="all">Все</option>
-                            </select>
-                        </th>
-                        <th>
-                            <select class="filter-select" data-col="4" onchange="applyFilters()">
-                                <option value="all">Все</option>
-                            </select>
-                        </th>
-                        <th>
-                            <select class="filter-select" data-col="5" onchange="applyFilters()">
-                                <option value="all">Все</option>
-                            </select>
-                        </th>
+                        <th><select class="filter-select" data-col="3" onchange="applyFilters()"><option value="all">Все</option></select></th>
+                        <th><select class="filter-select" data-col="4" onchange="applyFilters()"><option value="all">Все</option></select></th>
+                        <th><select class="filter-select" data-col="5" onchange="applyFilters()"><option value="all">Все</option></select></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -153,50 +128,55 @@
                         <td>
                             <div style="font-weight: 500;">{{ task['analyst_name'] if task['analyst_name'] else '—' }}</div>
                             
-                            {% if task['status'] == 'Ожидает' and session.get('role') == 'admin' %}
-                            <!-- Спойлер как выпадающее меню (Dropdown) -->
+                            {% if session.get('role') == 'admin' and task['status'] in ['Ожидает', 'В работе'] %}
                             <div style="position: relative; margin-top: 8px;">
                                 <details class="dropdown-details">
-                                    <summary style="font-size: 0.75rem; color: var(--cft-blue); cursor: pointer; font-weight: 600; list-style: none;">+ Назначить вручную</summary>
-                                    <form action="{{ url_for('assign_manual', task_id=task['id']) }}" method="POST" style="position: absolute; top: 100%; left: 0; z-index: 100; margin-top: 8px; min-width: 180px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--cft-card-bg); border: 1px solid var(--cft-border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                        <select name="analyst_id" style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;" required>
-                                            <option value="" disabled selected>Сотрудник...</option>
-                                            {% for a in analysts %}
-                                                <option value="{{ a['id'] }}">{{ a['name'] }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <button type="submit" style="padding: 6px; font-size: 0.75rem; background: var(--cft-blue); color: white; border: none; border-radius: 4px; cursor: pointer;">Назначить</button>
-                                    </form>
+                                    <summary style="font-size: 0.75rem; color: var(--cft-blue); cursor: pointer; font-weight: 600; list-style: none;">
+                                        {% if task['status'] == 'Ожидает' %}+ Назначить вручную{% else %}🔄 Переназначить{% endif %}
+                                    </summary>
+                                    <div style="position: absolute; top: 100%; left: 0; z-index: 100; margin-top: 8px; min-width: 190px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--cft-card-bg); border: 1px solid var(--cft-border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                        <form action="{{ url_for('assign_manual', task_id=task['id']) }}" method="POST" style="display: flex; flex-direction: column; gap: 6px; margin: 0;">
+                                            <select name="analyst_id" style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;" required>
+                                                <option value="" disabled selected>Сотрудник...</option>
+                                                {% for a in analysts %}
+                                                    <option value="{{ a['id'] }}">{{ a['name'] }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" style="padding: 6px; font-size: 0.75rem; background: var(--cft-blue); color: white; border: none; border-radius: 4px; cursor: pointer;">Назначить</button>
+                                        </form>
+                                        {% if task['status'] == 'В работе' %}
+                                        <form action="{{ url_for('unassign_task', task_id=task['id']) }}" method="POST" style="margin: 0;">
+                                            <button type="submit" style="width: 100%; padding: 6px; font-size: 0.75rem; background: #7f8c8d; color: white; border: none; border-radius: 4px; cursor: pointer;">↩️ Вернуть в очередь</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
                                 </details>
                             </div>
                             {% endif %}
                         </td>
 
                         <!-- 2. КОЛОНКА ДЕЙСТВИЯ -->
-                        <td style="min-width: 160px;">
-                            
-                            {% if session.get('role') == 'admin' and task['status'] == 'Ожидает' %}
-                            <!-- ПАНЕЛЬ РЕДАКТИРОВАНИЯ как выпадающее меню (Dropdown) -->
-                            <div style="position: relative;">
-                                <details class="dropdown-details">
-                                    <summary style="font-size: 0.75rem; color: var(--cft-orange); cursor: pointer; font-weight: 600; list-style: none;">⚙️ Редактировать тикет</summary>
-                                    <form action="/edit_task/{{ task['id'] }}" method="post" style="position: absolute; top: 100%; right: 0; z-index: 100; margin-top: 8px; min-width: 200px; display: flex; flex-direction: column; gap: 8px; background: var(--cft-card-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--cft-orange); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                        <input type="text" name="new_type" value="{{ task['task_type'] }}" required style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;">
-                                        <select name="new_priority" style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;">
-                                            <option value="low" {% if task['priority'] == 'low' %}selected{% endif %}>Низкий</option>
-                                            <option value="medium" {% if task['priority'] == 'medium' %}selected{% endif %}>Средний</option>
-                                            <option value="high" {% if task['priority'] == 'high' %}selected{% endif %}>Высокий</option>
-                                        </select>
-                                        <input type="text" name="reason" placeholder="Причина изменения..." required style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;">
-                                        <button type="submit" style="padding: 6px; font-size: 0.75rem; background: var(--cft-orange); color: #fff; border: none; border-radius: 4px; cursor: pointer;">Сохранить</button>
-                                    </form>
-                                </details>
-                            </div>
-                            {% endif %}
-
-                            <!-- КНОПКИ ЗАВЕРШЕНИЯ И ЭСКАЛАЦИИ -->
-                            {% if task['status'] == 'В работе' and (session.get('role') == 'admin' or task['analyst_name'] == session.get('user_name')) %}
+                        <td style="min-width: 165px;">
                             <div style="display: flex; flex-direction: column; gap: 6px;">
+                                {% if session.get('role') == 'admin' and task['status'] == 'Ожидает' %}
+                                <div style="position: relative;">
+                                    <details class="dropdown-details">
+                                        <summary style="font-size: 0.75rem; color: var(--cft-orange); cursor: pointer; font-weight: 600; list-style: none;">⚙️ Редактировать тикет</summary>
+                                        <form action="/edit_task/{{ task['id'] }}" method="post" style="position: absolute; top: 100%; right: 0; z-index: 100; margin-top: 8px; min-width: 200px; display: flex; flex-direction: column; gap: 8px; background: var(--cft-card-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--cft-orange); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                            <input type="text" name="new_type" value="{{ task['task_type'] }}" required style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;">
+                                            <select name="new_priority" style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;">
+                                                <option value="low" {% if task['priority'] == 'low' %}selected{% endif %}>Низкий</option>
+                                                <option value="medium" {% if task['priority'] == 'medium' %}selected{% endif %}>Средний</option>
+                                                <option value="high" {% if task['priority'] == 'high' %}selected{% endif %}>Высокий</option>
+                                            </select>
+                                            <input type="text" name="reason" placeholder="Причина изменения..." required style="padding: 6px; font-size: 0.75rem; border: 1px solid var(--cft-border); border-radius: 4px;">
+                                            <button type="submit" style="padding: 6px; font-size: 0.75rem; background: var(--cft-orange); color: #fff; border: none; border-radius: 4px; cursor: pointer;">Сохранить</button>
+                                        </form>
+                                    </details>
+                                </div>
+                                {% endif %}
+
+                                {% if task['status'] == 'В работе' and (session.get('role') == 'admin' or task['analyst_name'] == session.get('user_name')) %}
                                 <form action="/complete/{{ task['id'] }}" method="post" style="margin: 0; display: flex; gap: 5px; align-items: center;">
                                     <input type="text" name="resolution_comment" placeholder="Итог..." required style="width: 100%; min-width: 60px; padding: 5px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--cft-border); box-sizing: border-box;">
                                     <button type="submit" style="background-color: #27ae60; color: white; padding: 5px 12px; font-size: 0.85rem; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; flex-shrink: 0;" title="Завершить задачу">✓</button>
@@ -212,12 +192,16 @@
                                     <button type="submit" style="width: 100%; background-color: #e74c3c; padding: 5px; font-size: 0.75rem; border-radius: 4px; color: white; border: none; cursor: pointer; font-weight: 500;">⬆️ Эскалировать</button>
                                 </form>
                                 {% endif %}
+                                {% endif %}
+
+                                {% if session.get('role') == 'admin' %}
+                                <form action="/delete_task/{{ task['id'] }}" method="post" style="margin: 0;" onsubmit="return confirm('Удалить тикет #{{ task['id'] }}?');">
+                                    <button type="submit" style="background: transparent; color: #e74c3c; padding: 2px 0; font-size: 0.75rem; font-weight: 600; box-shadow: none; text-align: left;">🗑 Удалить</button>
+                                </form>
+                                {% elif task['status'] != 'В работе' %}
+                                    <span style="color: var(--cft-text-muted);">—</span>
+                                {% endif %}
                             </div>
-                            
-                            <!-- ЗАГЛУШКА -->
-                            {% elif task['status'] != 'Ожидает' or session.get('role') != 'admin' %}
-                                <span style="color: var(--cft-text-muted);">—</span>
-                            {% endif %}
                         </td>
                     </tr>
                     {% else %}
@@ -231,8 +215,25 @@
     </div>
 
     {% if session.get('role') == 'admin' %}
-    <!-- Вкладка 2: Аналитики (рендерится ТОЛЬКО для Суперадмина) -->
+    <!-- Вкладка 2: Аналитики -->
     <div id="analysts-tab" class="tab-content">
+        <div class="card">
+            <h2>Добавить аналитика</h2>
+            <form action="/add_analyst" method="post" class="form-group" style="align-items: center; flex-wrap: wrap;">
+                <input type="text" name="name" placeholder="Имя (напр. Павел (L2))" required style="flex-grow: 1;">
+                <select name="level">
+                    <option value="L1">L1 (Джун)</option>
+                    <option value="L2">L2 (Мидл)</option>
+                    <option value="L3">L3 (Сеньор)</option>
+                </select>
+                <input type="number" name="max_open_tasks" value="3" min="1" max="10" style="width: 80px;" title="Лимит задач">
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer;">
+                    <input type="checkbox" name="is_available" checked style="transform: scale(1.2);"> На смене
+                </label>
+                <button type="submit" class="btn-success">+ Добавить</button>
+            </form>
+        </div>
+
         <div class="card">
             <h2>Управление сменами аналитиков</h2>
             <table>
@@ -249,20 +250,25 @@
                 <tbody>
                     {% for analyst in analysts %}
                     <tr>
-                        <form action="/update_analyst/{{ analyst['id'] }}" method="post" style="margin: 0;">
-                            <td>#{{ analyst['id'] }}</td>
-                            <td><strong>{{ analyst['name'] }}</strong></td>
-                            <td><span style="background: rgba(79, 160, 240, 0.15); color: var(--cft-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">{{ analyst['level'] }}</span></td>
-                            <td>
-                                <input type="checkbox" name="is_available" style="transform: scale(1.3); cursor: pointer;" {% if analyst['is_available'] %}checked{% endif %}>
-                            </td>
-                            <td>
-                                <input type="number" name="max_open_tasks" value="{{ analyst['max_open_tasks'] }}" min="1" max="10" style="width: 70px; padding: 6px;">
-                            </td>
-                            <td>
-                                <button type="submit" class="btn-success" style="padding: 6px 12px; font-size: 0.8rem;">💾 Сохранить</button>
-                            </td>
-                        </form>
+                        <td>#{{ analyst['id'] }}</td>
+                        <td><strong>{{ analyst['name'] }}</strong></td>
+                        <td><span style="background: rgba(79, 160, 240, 0.15); color: var(--cft-blue); padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600;">{{ analyst['level'] }}</span></td>
+                        <td>
+                            <input type="checkbox" name="is_available" form="update-analyst-{{ analyst['id'] }}" style="transform: scale(1.3); cursor: pointer;" {% if analyst['is_available'] %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <input type="number" name="max_open_tasks" form="update-analyst-{{ analyst['id'] }}" value="{{ analyst['max_open_tasks'] }}" min="1" max="10" style="width: 70px; padding: 6px;">
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <form id="update-analyst-{{ analyst['id'] }}" action="/update_analyst/{{ analyst['id'] }}" method="post" style="margin: 0;">
+                                    <button type="submit" class="btn-success" style="padding: 6px 12px; font-size: 0.8rem;">💾 Сохранить</button>
+                                </form>
+                                <form action="/delete_analyst/{{ analyst['id'] }}" method="post" style="margin: 0;" onsubmit="return confirm('Удалить аналитика {{ analyst['name'] }}? Его задачи вернутся в очередь.');">
+                                    <button type="submit" style="background-color: #e74c3c; padding: 6px 10px; font-size: 0.8rem;" title="Удалить сотрудника">🗑</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -272,7 +278,6 @@
     {% endif %}
     
     <script>
-        // Скрипт для закрытия других выпадающих меню при открытии одного
         document.querySelectorAll('.dropdown-details').forEach((detail) => {
             detail.addEventListener('toggle', (e) => {
                 if (detail.open) {
@@ -285,7 +290,6 @@
             });
         });
 
-        // Закрытие выпадающих меню при клике вне их области (в любом месте страницы)
         document.addEventListener('click', function(event) {
             const isClickInside = event.target.closest('details.dropdown-details');
             if (!isClickInside) {
@@ -295,7 +299,6 @@
             }
         });
 
-        // --- Переключение вкладок ---
         function switchTab(tabId, btnElement) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -303,7 +306,6 @@
             btnElement.classList.add('active');
         }
 
-        // --- Умные фильтры ---
         function initFilters() {
             const tbody = document.querySelector("#tasks-table tbody");
             if (!tbody) return;
@@ -355,7 +357,6 @@
 
         initFilters();
 
-        // --- Сортировка таблицы ---
         let currentSortColumn = -1;
         let currentSortAsc = true;
 
