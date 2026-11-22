@@ -1,0 +1,651 @@
+{
+  "analysts": [
+    {
+      "name": "Ольга (L1 - Дежурный)",
+      "level": "L1",
+      "max_open_tasks": 8
+    },
+    {
+      "name": "Артем (L2 - Ночь)",
+      "level": "L2",
+      "max_open_tasks": 10
+    },
+    {
+      "name": "Виктор (L3 - Тимлид)",
+      "level": "L3",
+      "max_open_tasks": 8
+    }
+  ],
+  "tasks": [
+    {
+      "task_type": "DB",
+      "description": "Медленное выполнение запроса выписки по счетам (шард #101)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Batch",
+      "description": "Задержка закрытия операционного дня (поток #102)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Auth",
+      "description": "Сброс пароля учетной записи сотрудника (филиал #103)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не прогружается иконка в личном кабинете (клиент #104)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #105",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Batch",
+      "description": "Задержка закрытия операционного дня (поток #106)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Задержка доставки сервисного уведомления #107",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Разблокировка токена после 3 неверных попыток (АРМ #108)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не прогружается иконка в личном кабинете (клиент #109)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Зависание статуса перевода в обработке > 10 мин (пакет #110)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Security",
+      "description": "Срабатывание WAF: попытка SQL-инъекции (эндпоинт #111)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #112)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Backup",
+      "description": "Предупреждение при архивации тестового стенда dev-113",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "VPN",
+      "description": "Обрыв туннеля до удаленного офиса #114",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DDoS",
+      "description": "Аномальный всплеск HTTP-трафика на портал (сегмент #115)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Backup",
+      "description": "Предупреждение при архивации тестового стенда dev-116",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #117",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Массовые отказы при проведении платежей СБП (шлюз #118)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Задержка доставки сервисного уведомления #119",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DDoS",
+      "description": "Аномальный всплеск HTTP-трафика на портал (сегмент #120)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #121)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "VPN",
+      "description": "Обрыв туннеля до удаленного офиса #122",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-123",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #124",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Integration",
+      "description": "Рассинхронизация справочника БИК на узле #125",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Зависание статуса перевода в обработке > 10 мин (пакет #126)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Разблокировка токена после 3 неверных попыток (АРМ #127)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #128",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Network",
+      "description": "Потеря пакетов на канале связи до ЦОД-129",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-130",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не работает кнопка скачивания квитанции PDF (заявка #131)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #132",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #133)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Зависание статуса перевода в обработке > 10 мин (пакет #134)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Массовые отказы при проведении платежей СБП (шлюз #135)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Security",
+      "description": "Подозрительная серия запросов к API переводов (IP-пул #136)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #137)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Integration",
+      "description": "Рассинхронизация справочника БИК на узле #138",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #139)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Выдача прав на чтение витрины отчетов модуль #140",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Certificates",
+      "description": "Истекает SSL-сертификат на шлюзе обмена gw-141",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Batch",
+      "description": "Задержка закрытия операционного дня (поток #142)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #143",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #144",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-145",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #146)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не работает кнопка скачивания квитанции PDF (заявка #147)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Выдача прав на чтение витрины отчетов модуль #148",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Batch",
+      "description": "Задержка закрытия операционного дня (поток #149)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #150)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DDoS",
+      "description": "Аномальный всплеск HTTP-трафика на портал (сегмент #151)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Массовые отказы при проведении платежей СБП (шлюз #152)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #153)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Batch",
+      "description": "Задержка закрытия операционного дня (поток #154)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #155)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DB",
+      "description": "Исчерпан пул подключений к основной БД (кластер #156)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не работает кнопка скачивания квитанции PDF (заявка #157)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DDoS",
+      "description": "Аномальный всплеск HTTP-трафика на портал (сегмент #158)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #159",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Security",
+      "description": "Срабатывание WAF: попытка SQL-инъекции (эндпоинт #160)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Зависание статуса перевода в обработке > 10 мин (пакет #161)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #162",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #163)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #164",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Выдача прав на чтение витрины отчетов модуль #165",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Integration",
+      "description": "Рассинхронизация справочника БИК на узле #166",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DB",
+      "description": "Исчерпан пул подключений к основной БД (кластер #167)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Integration",
+      "description": "Рассинхронизация справочника БИК на узле #168",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-169",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Core",
+      "description": "Критическая ошибка очереди сообщений Kafka (брокер #170)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-171",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Integration",
+      "description": "Рассинхронизация справочника БИК на узле #172",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DB",
+      "description": "Исчерпан пул подключений к основной БД (кластер #173)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не прогружается иконка в личном кабинете (клиент #174)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Задержка доставки сервисного уведомления #175",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-176",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Security",
+      "description": "Срабатывание WAF: попытка SQL-инъекции (эндпоинт #177)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не прогружается иконка в личном кабинете (клиент #178)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #179)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Certificates",
+      "description": "Истекает SSL-сертификат на шлюзе обмена gw-180",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Integration",
+      "description": "Рассинхронизация справочника БИК на узле #181",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Monitoring",
+      "description": "Алерт: заполнено 80% диска на сервере логов log-srv-182",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DB",
+      "description": "Исчерпан пул подключений к основной БД (кластер #183)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "API",
+      "description": "Ошибка 502 при обращении к шлюзу СБП (инстанс #184)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Разблокировка токена после 3 неверных попыток (АРМ #185)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Разблокировка токена после 3 неверных попыток (АРМ #186)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Задержка доставки сервисного уведомления #187",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Batch",
+      "description": "Задержка закрытия операционного дня (поток #188)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #189)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Не приходят пуш-уведомления на iOS (устройство #190)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Reports",
+      "description": "Опечатка в заголовке выгрузки за период #191",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Core",
+      "description": "Утечка памяти (OOM) в сервисе уведомлений pod-192",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Core",
+      "description": "Утечка памяти (OOM) в сервисе уведомлений pod-193",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Backup",
+      "description": "Предупреждение при архивации тестового стенда dev-194",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Задержка доставки сервисного уведомления #195",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Network",
+      "description": "Потеря пакетов на канале связи до ЦОД-196",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DB",
+      "description": "Падение репликации на резервную ноду db-replica-197",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "UI",
+      "description": "Не прогружается иконка в личном кабинете (клиент #198)",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Зависание статуса перевода в обработке > 10 мин (пакет #199)",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Payments",
+      "description": "Массовые отказы при проведении платежей СБП (шлюз #200)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "DB",
+      "description": "Исчерпан пул подключений к основной БД (кластер #201)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Certificates",
+      "description": "Истекает SSL-сертификат на шлюзе обмена gw-202",
+      "priority": "medium",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Core",
+      "description": "Критическая ошибка очереди сообщений Kafka (брокер #203)",
+      "priority": "high",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Access",
+      "description": "Выдача прав на чтение витрины отчетов модуль #204",
+      "priority": "low",
+      "status": "Ожидает"
+    },
+    {
+      "task_type": "Mail",
+      "description": "Задержка доставки сервисного уведомления #205",
+      "priority": "low",
+      "status": "Ожидает"
+    }
+  ]
+}
